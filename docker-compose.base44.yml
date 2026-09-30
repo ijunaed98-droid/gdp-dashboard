@@ -1,0 +1,16 @@
+services:
+  web:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:8501"
+    command: ["sh", "-ec", "pip install --no-cache-dir -r requirements.txt && exec streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port 8501 --server.headless true --server.enableCORS false --server.enableXsrfProtection false --server.runOnSave true --client.toolbarMode minimal"]
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
